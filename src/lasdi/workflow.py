@@ -44,7 +44,7 @@ def main():
         cfg_parser = InputParser(config, name='main')
 
     use_restart = cfg_parser.getInput(['workflow', 'use_restart'], fallback=False)
-    # exp_key = cfg_parser.getInput(['exp_key'], fallback=None)
+    exp_key = cfg_parser.getInput(['exp_key'], fallback=None)
     path_results = cfg_parser.getInput(['lasdi', 'gplasdi', 'path_results'], fallback='results/')
     if (use_restart):
         restart_filename = cfg_parser.getInput(['workflow', 'restart_file'], datatype=str)
@@ -119,8 +119,8 @@ def main():
             old_timestamp = restart_file['timestamp']
             os.rename(restart_filename, restart_filename + '.' + old_timestamp)
         save_file = restart_filename
-    # elif (exp_key is not None):
-    #     save_file = path_results + '/results.npy'
+    elif (exp_key is not None):
+        save_file = path_results + '/results.npy'
     else:
         save_file = 'lasdi_' + date_str + '.npy'
     
@@ -311,12 +311,12 @@ def pick_samples(trainer, config):
     if exists(test_param_file):
         remove(test_param_file)
 
-    if (new_tests > 0):
-        with h5py.File(test_param_file, 'w') as f:
-            f.create_dataset("test_params", new_test_params.shape, data=new_test_params)
-            f.create_dataset("parameters", (len(trainer.param_space.param_name),), data=trainer.param_space.param_name)
-            f.attrs["n_params"] = trainer.param_space.n_param
-            f.attrs["new_points"] = new_test_params.shape[0]
+    # if (new_tests > 0):
+    #     with h5py.File(test_param_file, 'w') as f:
+    #         f.create_dataset("test_params", new_test_params.shape, data=new_test_params)
+    #         f.create_dataset("parameters", (len(trainer.param_space.param_name),), data=trainer.param_space.param_name)
+    #         f.attrs["n_params"] = trainer.param_space.n_param
+    #         f.attrs["new_points"] = new_test_params.shape[0]
 
     # Next step is to collect sample from the offline FOM simulation.
     next_step, result = NextStep.CollectSample, Result.Success
