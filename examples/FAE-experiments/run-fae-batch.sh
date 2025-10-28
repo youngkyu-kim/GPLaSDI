@@ -17,6 +17,8 @@ source ~/.bashrc
 conda activate python3.9
 cd /usr/workspace/trautner/GPLaSDI/examples/FAE-experiments
 
+export PYTHONUNBUFFERED=1
+
 # Define parameter arrays
 max_iters=(2000 5000 10000)
 pointwise_lifts=(5 20)
