@@ -128,7 +128,8 @@ def main():
                  'physics': physics.export(),
                  'latent_space': latent_space.export(),
                  'latent_dynamics': latent_dynamics.export(),
-                 'trainer': trainer.export(),
+                 'best_coefs': trainer.export()['best_coefs'],
+                #  'trainer': trainer.export(),
                  'timestamp': date_str, #'next_step': next_step,
                  'result': result} 
     
@@ -139,7 +140,8 @@ def main():
                  'physics': physics.export(),
                  'latent_space': latent_space.export(),
                  'latent_dynamics': latent_dynamics.export(),
-                 'trainer': trainer.export(),
+                 'best_coefs': trainer.export()['best_coefs'],
+                #  'trainer': trainer.export(),
                  'timestamp': date_str, #'next_step': next_step,
                  'result': result, # TODO(kevin): do we need to save result?,}
                 'max_rel_err': max_rel_err,
