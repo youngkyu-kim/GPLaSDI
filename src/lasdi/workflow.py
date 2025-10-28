@@ -129,7 +129,7 @@ def main():
                  'latent_space': latent_space.export(),
                  'latent_dynamics': latent_dynamics.export(),
                  'best_coefs': trainer.export()['best_coefs'],
-                #  'trainer': trainer.export(),
+                 'trainer': trainer.export(),
                  'timestamp': date_str, #'next_step': next_step,
                  'result': result} 
     
