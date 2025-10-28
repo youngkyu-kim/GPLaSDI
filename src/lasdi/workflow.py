@@ -6,7 +6,7 @@ import sys
 import h5py
 from .enums import *
 from .gplasdi import BayesianGLaSDI
-from .latent_space import Autoencoder
+from .latent_space import Autoencoder, FNO_Autoencoder_1d
 from .latent_dynamics.sindy import SINDy
 from .physics.burgers1d import Burgers1D
 from .param import ParameterSpace
@@ -20,9 +20,10 @@ from lasdi.gp import fit_gps
 from lasdi.gplasdi import sample_roms, average_rom
 
 
+
 trainer_dict = {'gplasdi': BayesianGLaSDI}
 
-latent_dict = {'ae': Autoencoder}
+latent_dict = {'ae': Autoencoder, 'fae1d': FNO_Autoencoder_1d}
 
 ld_dict = {'sindy': SINDy}
 
@@ -43,6 +44,8 @@ def main():
         cfg_parser = InputParser(config, name='main')
 
     use_restart = cfg_parser.getInput(['workflow', 'use_restart'], fallback=False)
+    # exp_key = cfg_parser.getInput(['exp_key'], fallback=None)
+    path_results = cfg_parser.getInput(['lasdi', 'gplasdi', 'path_results'], fallback='results/')
     if (use_restart):
         restart_filename = cfg_parser.getInput(['workflow', 'restart_file'], datatype=str)
         from os.path import dirname
@@ -70,18 +73,28 @@ def main():
         pick_samples(trainer, config)
         run_samples(trainer, config)
 
+    latent_type = config['latent_space']['type']
+    # if latent_type == 'fae1d':
+    #     '''
+    #     Adjust data to shape fae_1d expects: (n_samples, n_t, n_channels, n_x)
+    #     '''
+    #     if len(trainer.X_train.shape) == 3:
+    #         trainer.X_train = trainer.X_train.unsqueeze(2)
+    #     if len(trainer.X_test.shape) == 3:
+    #         trainer.X_test = trainer.X_test.unsqueeze(2)
+
 
     trainer.train()
 
-    while (trainer.restart_iter < trainer.max_iter):
-        if (trainer.restart_iter <= trainer.max_greedy_iter):
-            # perform greedy sampling to pick up new samples
-            pick_samples(trainer, config)
-            # update training data with newly picked samples
-            run_samples(trainer, config)
+    # while (trainer.restart_iter < trainer.max_iter):
+    #     if (trainer.restart_iter <= trainer.max_greedy_iter):
+    #         # perform greedy sampling to pick up new samples
+    #         pick_samples(trainer, config)
+    #         # update training data with newly picked samples
+    #         run_samples(trainer, config)
 
-        # train over given training data
-        trainer.train()
+    #     # train over given training data
+    #     trainer.train()
     
     # result, next_step = step(trainer, current_step, config, use_restart)
 
@@ -99,7 +112,6 @@ def main():
     date = time.localtime()
     date_str = "{month:02d}_{day:02d}_{year:04d}_{hour:02d}_{minute:02d}"
     date_str = date_str.format(month = date.tm_mon, day = date.tm_mday, year = date.tm_year, hour = date.tm_hour + 3, minute = date.tm_min)
-    exp_key = cfg_parser.getInput(['exp_key'], fallback=None)
 
     if (use_restart):
         # rename old restart file if exists.
@@ -107,8 +119,8 @@ def main():
             old_timestamp = restart_file['timestamp']
             os.rename(restart_filename, restart_filename + '.' + old_timestamp)
         save_file = restart_filename
-    elif (exp_key is not None):
-        save_file = exp_key + '.npy'
+    # elif (exp_key is not None):
+    #     save_file = path_results + '/results.npy'
     else:
         save_file = 'lasdi_' + date_str + '.npy'
     
@@ -212,10 +224,12 @@ def initialize_trainer(config, restart_file=None):
         latent_dynamics.load(restart_file['latent_dynamics'])
 
     trainer_type = config['lasdi']['type']
+    latent_type = config['latent_space']['type']
     assert(trainer_type in config['lasdi'])
     assert(trainer_type in trainer_dict)
 
     trainer = trainer_dict[trainer_type](physics, latent_space, latent_dynamics, param_space, config['lasdi'][trainer_type])
+
     if (restart_file is not None):
         trainer.load(restart_file['trainer'])
 
@@ -224,7 +238,7 @@ def initialize_trainer(config, restart_file=None):
 def initialize_latent_space(physics, config):
     '''
     Initialize a latent space model according to config file.
-    Currently only 'ae' (autoencoder) is available.
+    Currently only 'ae' (autoencoder) and 'fae' (Fourier Autoencoder) is available.
     '''
 
     latent_type = config['latent_space']['type']
@@ -233,6 +247,7 @@ def initialize_latent_space(physics, config):
     assert(latent_type in latent_dict)
     
     latent_cfg = config['latent_space'][latent_type]
+
     latent_space = latent_dict[latent_type](physics, latent_cfg)
 
     return latent_space

@@ -1,10 +1,15 @@
 from .gp import *
 from .latent_space import *
+from .fno_shared import *
 from .enums import *
 from .timing import Timer
 import torch
 import time
 import numpy as np
+import pdb
+import time
+from .fno_shared import SubsampleScheduler
+
 
 def average_rom(autoencoder, physics, latent_dynamics, gp_dictionary, param_grid):
 
@@ -105,6 +110,8 @@ class BayesianGLaSDI:
 
         self.autoencoder = autoencoder
         self.latent_dynamics = latent_dynamics
+        
+        self.latent_space = config['latent_space']
         self.physics = physics
         self.param_space = param_space
         self.timer = Timer()
@@ -123,6 +130,8 @@ class BayesianGLaSDI:
         self.path_checkpoint = config['path_checkpoint']
         self.path_results = config['path_results']
 
+        self.adaptive_subsample = config['adaptive_subsample'] if 'adaptive_subsample' in config else False
+        
         from os.path import dirname
         from pathlib import Path
         Path(dirname(self.path_checkpoint)).mkdir(parents=True, exist_ok=True)
@@ -148,13 +157,22 @@ class BayesianGLaSDI:
         return
 
     def train(self):
+
         assert(self.X_train.size(0) > 0)
         assert(self.X_train.size(0) == self.param_space.n_train())
 
+
         device = self.device
         autoencoder_device = self.autoencoder.to(device)
-        X_train_device = self.X_train.to(device)
+        # if self.latent_space == 'fae1d':
+        #     # Assume get_grid is True here. adding grid features
+        #     self.n_samples = self.X_train.shape[0]
+        #     self.X_train = self.X_train.reshape(-1,self.autoencoder.d_in, self.X_train.shape[-1])
+        #     self.X_train = torch.cat((self.X_train, get_grid1d(self.X_train.shape, self.X_train.device)), dim=-2)    # grid ``features''
+        #     # shape is now (n_samples*d_t, d_in + 1, d_x)
+        #     self.X_train = self.X_train.reshape(self.n_samples, -1, self.autoencoder.d_in + 1, self.X_train.shape[-1])
 
+        X_train_device = self.X_train.to(device)        
         from pathlib import Path
         Path(self.path_checkpoint).mkdir(parents=True, exist_ok=True)
         Path(self.path_results).mkdir(parents=True, exist_ok=True)
@@ -172,22 +190,40 @@ class BayesianGLaSDI:
             determine number of iterations.
             Perform n_iter iterations until overall iterations hit max_iter.
         '''
+        if self.adaptive_subsample:
+            gridsize = self.physics.grid_size[0]
+            minsize = 32 
+            subsampler = SubsampleScheduler(gridsize // minsize, ndim = 1, patience=101, max_iter = self.max_iter)
+
+
         next_iter = min(self.restart_iter + self.n_iter, self.max_iter)
 
         for iter in range(self.restart_iter, next_iter):
             self.timer.start("train_step")
-
+            start_time = time.time()
             self.optimizer.zero_grad()
-            Z = autoencoder_device.encoder(X_train_device)
-            X_pred = autoencoder_device.decoder(Z)
-            Z = Z.cpu()
 
-            loss_ae = self.MSE(X_train_device, X_pred)
+            if self.adaptive_subsample:
+                X_train_device_temp = subsampler(X_train_device)
+            else:
+                X_train_device_temp = X_train_device
+            
+            Z = autoencoder_device.encoder(X_train_device_temp)
+
+            X_pred = autoencoder_device.decoder(Z)
+
+            Z = Z.cpu()
+            loss_ae = self.MSE(X_train_device_temp, X_pred)
             coefs, loss_ld, loss_coef = ld.calibrate(Z, self.physics.dt, compute_loss=True, numpy=True)
+
 
             max_coef = np.abs(coefs).max()
 
             loss = loss_ae + self.ld_weight * loss_ld / n_train + self.coef_weight * loss_coef / n_train
+            if self.adaptive_subsample:
+                subsampler.step(loss)
+                subsamp_str =  f'[subsamp: {subsampler.ss}]'
+                print(subsamp_str, end=' ')
 
             self.training_loss.append(loss.item())
             self.ae_loss.append(loss_ae.item())
@@ -221,6 +257,8 @@ class BayesianGLaSDI:
                 print(', ' + str(np.round(ps.train_space[-1, :], 4)))
 
             self.timer.end("train_step")
+            end_time = time.time()  
+            print('Time: %3.2f s' % (end_time - start_time))
         
         self.timer.start("finalize")
 
