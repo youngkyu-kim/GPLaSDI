@@ -2,12 +2,12 @@
 #SBATCH --job-name=fae-batch
 #SBATCH --output=lasdi_%A_%a.out
 #SBATCH --error=lasdi_%A_%a.err
-#SBATCH --array=0-11
-#SBATCH --time=24:00:00
+#SBATCH --array=0-1
+#SBATCH --time=00:03:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
-#SBATCH --partition=pbatch
+#SBATCH --partition=pdebug
 
 # Create logs directory if it doesn't exist
 mkdir -p logs
@@ -15,6 +15,7 @@ mkdir -p logs
 # Activate conda environment
 source ~/.bashrc
 conda activate python3.9
+cd /usr/workspace/trautner/GPLaSDI/examples/FAE-experiments
 
 # Define parameter arrays
 max_iters=(2000 5000 10000)
