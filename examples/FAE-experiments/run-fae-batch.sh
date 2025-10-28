@@ -37,7 +37,8 @@ pointwise_lift=${pointwise_lifts[$pl_idx]}
 layer_width=${layer_widths[$lw_idx]}
 
 # Construct config filename
-config_file="burgers1d-FAE-MI${max_iter}-PLD${pointwise_lift}-LW${layer_width}.yaml"
+config_dir="burgers1d-FAE-MI${max_iter}-PLD${pointwise_lift}-LW${layer_width}"
+config_file="${config_dir}/config.yaml"
 
 echo "================================================"
 echo "SLURM_ARRAY_TASK_ID: $SLURM_ARRAY_TASK_ID"
