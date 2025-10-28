@@ -46,6 +46,8 @@ def main():
     use_restart = cfg_parser.getInput(['workflow', 'use_restart'], fallback=False)
     exp_key = cfg_parser.getInput(['exp_key'], fallback=None)
     path_results = cfg_parser.getInput(['lasdi', 'gplasdi', 'path_results'], fallback='results/')
+    if exp_key is not None:
+        path_results = exp_key + '/'
     if (use_restart):
         restart_filename = cfg_parser.getInput(['workflow', 'restart_file'], datatype=str)
         from os.path import dirname
