@@ -306,10 +306,10 @@ def pick_samples(trainer, config):
     #     f.attrs["new_points"] = new_sample.shape[0]
 
     # clean up the previous test parameter point file.
-    test_param_file = cfg_parser.getInput(['workflow', 'offline_greedy_sampling', 'test_param_file'], fallback="new_test.h5")
-    Path(dirname(test_param_file)).mkdir(parents=True, exist_ok=True)
-    if exists(test_param_file):
-        remove(test_param_file)
+    # test_param_file = cfg_parser.getInput(['workflow', 'offline_greedy_sampling', 'test_param_file'], fallback="new_test.h5")
+    # Path(dirname(test_param_file)).mkdir(parents=True, exist_ok=True)
+    # if exists(test_param_file):
+    #     remove(test_param_file)
 
     # if (new_tests > 0):
     #     with h5py.File(test_param_file, 'w') as f:
