@@ -1,0 +1,98 @@
+lasdi:
+  type: gplasdi
+  gplasdi:
+    # device: mps
+    n_samples: 20
+    lr: 0.001
+    max_iter: 100 #20000 #34000 #28000
+    n_iter: 2000 #2000
+    max_greedy_iter: 0 #34000 #28000
+    ld_weight: 0.1
+    coef_weight: 1.e-6
+    path_checkpoint: checkpoint
+    path_results: results
+    adaptive_subsample: True
+    latent_space: fae1d
+
+
+workflow:
+  use_restart: false
+  restart_file: /usr/workspace/trautner/GPLaSDI/examples/restarts/burgers1d.restart.npy
+  offline_greedy_sampling:
+  offline_greedy_sampling:
+      train_param_file: sampling/non-adaptive_train.burgers1d.h5
+      test_param_file: sampling/new_test.burgers1d.h5
+      train_sol_file: sampling/non-adaptive_Xtrain.burgers1d.h5
+      test_sol_file: sampling/new_Xtest.burgers1d.h5
+
+parameter_space:
+  custom_train_space: true
+  custom_space_path: sampling/FNO_param_train_20_burgers1d.npy
+  parameters:
+    - name: a
+      min: 0.7
+      max: 0.9
+      test_space_type: uniform
+      sample_size: 21
+      log_scale: false
+    - name: w
+      min: 0.9
+      max: 1.1
+      # another way of specifying test space.
+      test_space_type: list
+      list: [0.9, 0.91, 0.92, 0.93, 0.94,
+             0.95, 0.96, 0.97, 0.98, 0.99,
+             1.0, 1.01, 1.02, 1.03, 1.04,
+             1.05, 1.06, 1.07, 1.08, 1.09, 1.1]
+  test_space:
+    type: grid
+
+## An example if we want to provide training points on exterior 
+## of region and train in convex hull of training points
+# parameter_space:
+#   parameters:
+#     - name: a
+#       min: 0.7
+#       max: 0.9
+#       test_space_type: list
+#       sample_size: 21
+#       list: [0.70, 0.725, 0.75, 0.800, 0.85, 0.90]
+#       log_scale: false
+#     - name: w
+#       min: 0.9
+#       max: 1.1
+#       test_space_type: list
+#       sample_size: 21
+#       list: [0.90, 0.970, 1.00, 0.925, 0.98, 1.10]
+#       log_scale: false
+#   test_space:
+#     type: hull
+
+latent_space:
+  type: fae1d
+  fae1d:
+    pointwise_lift_dim: 5
+    layer_widths: [50]
+    hidden_dim: 5
+    modes: 10
+    d_physical: 1
+    d_in: 1 
+
+
+    
+
+latent_dynamics:
+  type: sindy
+  sindy:
+    fd_type: sbp12
+    coef_norm_order: fro
+
+physics:
+  type: burgers1d
+  burgers1d:
+    offline_driver: true
+    number_of_timesteps: 1001
+    simulation_time: 1.
+    grid_size: [1001]
+    xmin: -3.
+    xmax: 3.

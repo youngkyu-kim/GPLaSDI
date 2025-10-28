@@ -1,0 +1,11 @@
+a_min: 0.7
+a_max: 0.9
+w_min: 0.9
+w_max: 1.1
+n_a_grid: 21
+n_w_grid: 21
+space_dim: 1001
+time_dim: 1001
+x_min: -3
+x_max: 3
+t_max: 1
