@@ -7,6 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
+#SBATCH --partition=pbatch
 
 # Create logs directory if it doesn't exist
 mkdir -p logs
