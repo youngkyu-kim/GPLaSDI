@@ -48,7 +48,7 @@ For installing GPLasDI on your conda environment:
 source /your/anaconda
 conda activate /your/environment
 
-pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.3
+pip3 install torch torchvision --index-url https://download.pytorch.org/whl/rocm6.4
 
 pip install .
 ```
