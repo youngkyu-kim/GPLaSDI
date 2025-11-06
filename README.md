@@ -20,6 +20,7 @@ autoreconf -i
 make
 make install
 ```
+-->
 
 ## Dependencies and Installation
 
@@ -42,10 +43,10 @@ This python package requires updated prerequistes:
 ### For LLNL LC Tuolumne users
 
 The work-in-progress python package is compatiable with Tuolumne. Users must make sure to install ROCm for compatability with AMD GPUs.
-For installing GPLasDI on your conda environment environment:
+For installing GPLasDI on your conda environment:
 ```
 source /your/anaconda
-conda activate /your/opence/environment
+conda activate /your/environment
 
 pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.3
 
