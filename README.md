@@ -21,10 +21,6 @@ make
 make install
 ```
 
-## For LLNL LC Lassen users
-
-Please install [OpenCE-1.1.2](https://lc.llnl.gov/confluence/pages/viewpage.action?pageId=678892406) -->
-
 ## Dependencies and Installation
 
 Users can install the repository as a python package:
@@ -43,16 +39,15 @@ This python package requires updated prerequistes:
 "h5py"
 ```
 
-### For LLNL LC Lassen users
+### For LLNL LC Tuolumne users
 
-The work-in-progress python package is compatiable with [OpenCE-1.9.1](https://lc.llnl.gov/confluence/pages/viewpage.action?pageId=785286611).
-For installing GPLasDI on opence environment:
+The work-in-progress python package is compatiable with Tuolumne. Users must make sure to install ROCm for compatability with AMD GPUs.
+For installing GPLasDI on your conda environment environment:
 ```
 source /your/anaconda
 conda activate /your/opence/environment
 
-conda install scikit-learn
-pip install argparse
+pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.3
 
 pip install .
 ```
