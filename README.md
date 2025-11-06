@@ -52,6 +52,10 @@ pip3 install torch torchvision --index-url https://download.pytorch.org/whl/rocm
 
 pip install .
 ```
+#### References
+[PyTorch in LC](https://lc.llnl.gov/confluence/spaces/LC/pages/633377957/PyTorch+in+LC)
+
+[Distributed PyTorch on CORAL 2 Systems](https://lc.llnl.gov/confluence/spaces/LC/pages/753186548/Distributed+PyTorch+on+CORAL+2+systems)
 
 ## Examples
 
