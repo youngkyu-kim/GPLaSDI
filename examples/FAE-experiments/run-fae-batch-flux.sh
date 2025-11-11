@@ -13,18 +13,19 @@
 # Auto-submit to Flux if not already running as part of job array
 # N nodes, n tasks, c cpus, g gpus
  # Unbuffered output
-if [ -z "$FLUX_TASK_RANK" ]; then
-    echo "Submitting job array to Flux..."
-    flux submit -N 1 -n 1 -c 4 -g 1 \
-        --setattr=system.duration=300 \
-        --job-name=fae-batch-gpu \
-        --output=logs/lasdi_{cc}.out \
-        --error=logs/lasdi_{cc}.err \
-        --env=PYTHONUNBUFFERED=1 \
-        --cc=0 \
-        bash "$0"
-    exit 0
-fi
+
+'''
+to run the script: 
+flux submit -N 1 -n 1 -c 4 -g 1 \
+    --setattr=system.duration=300 \
+    --job-name=fae-batch-gpu \
+    --output=lasdi_{cc}.out \
+    --error=lasdi_{cc}.err \
+    --env=PYTHONUNBUFFERED=1 \
+    --cc=0 \
+    bash run-fae-batch-flux.sh
+'''
+
 
 # Create logs directory if it doesn't exist
 mkdir -p logs
