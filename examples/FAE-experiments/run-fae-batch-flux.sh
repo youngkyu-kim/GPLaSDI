@@ -16,7 +16,7 @@
 if [ -z "$FLUX_TASK_RANK" ]; then
     echo "Submitting job array to Flux..."
     flux submit -N 1 -n 1 -c 4 -g 1 \
-        --setattr=system.duration=24h \
+        --setattr=system.duration=300 \
         --job-name=fae-batch-gpu \
         --output=logs/lasdi_{cc}.out \
         --error=logs/lasdi_{cc}.err \
