@@ -21,7 +21,7 @@ if [ -z "$FLUX_TASK_RANK" ]; then
         --output=logs/lasdi_{cc}.out \
         --error=logs/lasdi_{cc}.err \
         --env=PYTHONUNBUFFERED=1 \
-        --array=0 \
+        --cc=0 \
         bash "$0"
     exit 0
 fi
