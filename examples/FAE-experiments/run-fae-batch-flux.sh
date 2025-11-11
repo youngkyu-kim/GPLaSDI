@@ -16,7 +16,7 @@ echo "Script starting..."
 
 
 # to run the script: 
-# flux submit -N 1 -n 1 -c 4 -g 1 --setattr=system.duration=300 --job-name=fae-batch-gpu --output=lasdi_{cc}.out --error=lasdi_{cc}.err --env=PYTHONUNBUFFERED=1 --cc=0 bash run-fae-batch-flux.sh
+# flux submit -N 1 -n 1 -c 4 --gpus-per-task=1 --setattr=system.duration=300 --job-name=fae-batch-gpu --output=lasdi_{cc}.out --error=lasdi_{cc}.err --env=PYTHONUNBUFFERED=1 --cc=0 bash run-fae-batch-flux.sh
 
 
 
