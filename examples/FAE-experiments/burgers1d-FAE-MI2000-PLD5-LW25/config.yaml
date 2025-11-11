@@ -1,7 +1,7 @@
 exp_key: burgers1d-FAE-MI2000-PLD5-LW25
 lasdi:
   gplasdi:
-    adaptive_subsample: true
+    adaptive_subsample: false
     coef_weight: 1.0e-06
     latent_space: fae1d
     ld_weight: 0.1
