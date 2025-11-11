@@ -2,7 +2,7 @@
 #SBATCH --job-name=fae-batch-gpu
 #SBATCH --output=lasdi_%A_%a.out
 #SBATCH --error=lasdi_%A_%a.err
-#SBATCH --array=0
+#SBATCH --array=0-11
 #SBATCH --time=00:05:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4

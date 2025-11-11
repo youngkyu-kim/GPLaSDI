@@ -11,14 +11,16 @@
 # flux alloc -N 1 -n 1 -c 4 -g 1 -t 5m
 
 # Auto-submit to Flux if not already running as part of job array
+# N nodes, n tasks, c cpus, g gpus
+ # Unbuffered output
 if [ -z "$FLUX_TASK_RANK" ]; then
     echo "Submitting job array to Flux..."
-    flux submit -N 1 -n 1 -c 4 -g 1 \  # N nodes, n tasks, c cpus, g gpus
+    flux submit -N 1 -n 1 -c 4 -g 1 \
         --setattr=system.duration=24h \
         --job-name=fae-batch-gpu \
         --output=logs/lasdi_{cc}.out \
         --error=logs/lasdi_{cc}.err \
-        --env=PYTHONUNBUFFERED=1 \    # Unbuffered output
+        --env=PYTHONUNBUFFERED=1 \
         --array=0 \
         bash "$0"
     exit 0
