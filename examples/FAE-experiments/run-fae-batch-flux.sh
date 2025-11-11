@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo "Script starting..."
 # Flux Job Specifications (as comments for reference)
 # Submit this script with:
 # flux submit -N 1 -n 1 -c 4 -g 1 --setattr=system.duration=24h \
@@ -27,11 +27,14 @@ mkdir -p logs
 source ~/.bashrc
 conda activate python3.9
 
+echo "Changed conda environment"
+
 cd /usr/workspace/trautner/GPLaSDI
 
 # Compile lasdi
 pip install .
 
+echo "Compiled lasdi"
 cd /usr/workspace/trautner/GPLaSDI/examples/FAE-experiments
 
 export PYTHONUNBUFFERED=1
@@ -71,6 +74,7 @@ echo "  pointwise_lift: $pointwise_lift"
 echo "  layer_width: $layer_width"
 echo "  config_file: $config_file"
 echo "================================================"
+
 
 # Run the command
 lasdi "$config_file"
