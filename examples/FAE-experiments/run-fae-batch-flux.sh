@@ -31,10 +31,6 @@ echo "Changed conda environment"
 
 cd /usr/workspace/trautner/GPLaSDI
 
-# Compile lasdi
-pip install .
-
-echo "Compiled lasdi"
 cd /usr/workspace/trautner/GPLaSDI/examples/FAE-experiments
 
 export PYTHONUNBUFFERED=1
