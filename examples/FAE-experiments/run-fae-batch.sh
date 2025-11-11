@@ -1,13 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=fae-batch
+#SBATCH --job-name=fae-batch-gpu
 #SBATCH --output=lasdi_%A_%a.out
 #SBATCH --error=lasdi_%A_%a.err
-#SBATCH --array=0-11
-#SBATCH --time=12:00:00
+#SBATCH --array=0
+#SBATCH --time=00:05:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=64G
-#SBATCH --partition=pbatch
+#SBATCH --partition=pdebug
+#SBATCH --gres=gpu:1
 
 # Create logs directory if it doesn't exist
 mkdir -p logs
@@ -15,13 +16,17 @@ mkdir -p logs
 # Activate conda environment
 source ~/.bashrc
 conda activate python3.9
+cd /usr/workspace/trautner/GPLaSDI
+
+# Compile lasdi
+pip install .
 cd /usr/workspace/trautner/GPLaSDI/examples/FAE-experiments
 
 export PYTHONUNBUFFERED=1
 
 # Define parameter arrays
 max_iters=(2000 5000 10000)
-pointwise_lifts=(5 20)
+pointwise_lifts=(5)
 layer_widths=(25 50)
 
 # Calculate total combinations: 3 * 2 * 2 = 12 (indices 0-11)
@@ -51,6 +56,8 @@ echo "  pointwise_lift: $pointwise_lift"
 echo "  layer_width: $layer_width"
 echo "  config_file: $config_file"
 echo "================================================"
+
+# Compile lasdi   
 
 
 

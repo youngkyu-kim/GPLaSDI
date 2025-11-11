@@ -288,12 +288,15 @@ class FNO_Autoencoder_1d(torch.nn.Module):
         #     self.adjusted = True
 
         # reshape so that n_samples and n_t are same dimension
+        start_time = time.time()
         n_x = x.shape[-1]
         self.set_outputspace_resolution(n_x)
 
         self.n_samples = x.shape[0]
         x = x.reshape(-1,self.d_in, x.shape[-1]) # (batch, d_in, n_x)
         self.adjusted = True
+        reshape_time = time.time()
+
 
 
 
@@ -301,10 +304,14 @@ class FNO_Autoencoder_1d(torch.nn.Module):
         if self.get_grid:
             x = torch.cat((x, get_grid1d(x.shape, x.device)), dim=-2)    # grid ``features''
        
+        grid_time = time.time()
+
         x = x.permute(0, 2, 1)  # (batch, n_x, d_in + d_physical)
         x = self.fc0_e(x) # Linear pointwise lift
         x = x.permute(0, 2, 1)  # (batch, pointwise_lift_dim, n_x)
         
+        lift_layer_time = time.time()
+        print("Lift layer time:", lift_layer_time - grid_time)
         # Map from input domain into the torus
         x = F.pad(x, [0, x.shape[-1]//self.padding])
         # # Fourier integral operator layers on the torus
@@ -314,6 +321,8 @@ class FNO_Autoencoder_1d(torch.nn.Module):
 
         # Extract Fourier neural functionals on the torus
         x = self.lfunc0_e(x)
+        nf_time = time.time()
+        print("Neural functional layer time:", nf_time - lift_layer_time)
         
         # Retain the truncated modes (use all modes) (local information)
         # x = x.permute(0, 2, 1)
@@ -327,6 +336,9 @@ class FNO_Autoencoder_1d(torch.nn.Module):
 
         # Final projection layer
         x = self.mlp0_e(x)
+
+        proj_time = time.time()
+        print("Final projection layer time:", proj_time - nf_time)
 
         if self.adjusted:
             x = x.reshape(self.n_samples, -1, x.shape[-1])

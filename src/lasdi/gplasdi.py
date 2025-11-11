@@ -210,16 +210,24 @@ class BayesianGLaSDI:
             
             Z = autoencoder_device.encoder(X_train_device_temp)
 
+            encoder_time = time.time()
+            print('Encoder Time: %3.2f s' % (encoder_time - start_time), end=' ')
+
             X_pred = autoencoder_device.decoder(Z)
+
+            decoder_time = time.time()
+            print('Decoder Time: %3.2f s' % (decoder_time - encoder_time), end=' ')
 
             Z = Z.cpu()
             loss_ae = self.MSE(X_train_device_temp, X_pred)
             coefs, loss_ld, loss_coef = ld.calibrate(Z, self.physics.dt, compute_loss=True, numpy=True)
 
 
+
             max_coef = np.abs(coefs).max()
 
             loss = loss_ae + self.ld_weight * loss_ld / n_train + self.coef_weight * loss_coef / n_train
+            
             if self.adaptive_subsample:
                 subsampler.step(loss)
                 subsamp_str =  f'[subsamp: {subsampler.ss}]'
@@ -230,8 +238,12 @@ class BayesianGLaSDI:
             self.ld_loss.append(loss_ld.item())
             self.coef_loss.append(loss_coef.item())
 
+            
             loss.backward()
+            backprop_time = time.time()
+            print('Backprop Time: %3.2f s' % (backprop_time - decoder_time), end=' ')
             self.optimizer.step()
+ 
 
             if loss.item() < self.best_loss:
                 torch.save(autoencoder_device.cpu().state_dict(), self.path_checkpoint + '/' + 'checkpoint.pt')

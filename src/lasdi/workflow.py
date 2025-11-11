@@ -35,6 +35,29 @@ parser.add_argument('config_file', metavar='string', type=str,
                     help='config file to run LasDI workflow.\n')
 
 def main():
+    ## Verify GPU
+
+    # Check if CUDA is available
+    print(f"CUDA available: {torch.cuda.is_available()}")
+    print(f"CUDA version: {torch.version.cuda}")
+    print(f"PyTorch version: {torch.__version__}")
+
+    # Get number of GPUs
+    print(f"Number of GPUs: {torch.cuda.device_count()}")
+
+    # Get GPU name(s)
+    if torch.cuda.is_available():
+        for i in range(torch.cuda.device_count()):
+            print(f"GPU {i}: {torch.cuda.get_device_name(i)}")
+        print(f"Current GPU: {torch.cuda.current_device()}")
+        
+        # Check memory
+        print(f"GPU Memory allocated: {torch.cuda.memory_allocated(0) / 1e9:.2f} GB")
+        print(f"GPU Memory cached: {torch.cuda.memory_reserved(0) / 1e9:.2f} GB")
+    else:
+        print("WARNING: No GPU detected! Running on CPU")
+
+    ## Parse arguments
     args = parser.parse_args(sys.argv[1:])
     print("config file: %s" % args.config_file)
 
