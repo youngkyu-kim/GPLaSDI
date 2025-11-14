@@ -2,7 +2,7 @@ exp_key: local-burgers1d-flasdi
 lasdi:
   type: gplasdi
   gplasdi:
-    # device: mps
+    # device: 'cuda'
     n_samples: 10
     lr: 0.001
     max_iter: 5 #20000 #34000 #28000

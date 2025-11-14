@@ -99,14 +99,7 @@ def main():
         run_samples(trainer, config)
 
     latent_type = config['latent_space']['type']
-    # if latent_type == 'fae1d':
-    #     '''
-    #     Adjust data to shape fae_1d expects: (n_samples, n_t, n_channels, n_x)
-    #     '''
-    #     if len(trainer.X_train.shape) == 3:
-    #         trainer.X_train = trainer.X_train.unsqueeze(2)
-    #     if len(trainer.X_test.shape) == 3:
-    #         trainer.X_test = trainer.X_test.unsqueeze(2)
+
 
 
     trainer.train()

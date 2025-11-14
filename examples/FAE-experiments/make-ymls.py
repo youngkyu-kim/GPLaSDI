@@ -8,7 +8,7 @@ with open(template_file, 'r') as file:
 # Modify variables lasdi: gplasdi: max_iter and latent space: ae: hidden_units:
 # max_iters = [5000, 10000, 15000, 20000]
 max_iters = [2000, 5000, 10000]
-pointwise_lifts = [5, 20]
+pointwise_lifts = [5]
 layer_widths = [25, 50]
 for max_iter in max_iters:
     for pointwise_lift in pointwise_lifts:

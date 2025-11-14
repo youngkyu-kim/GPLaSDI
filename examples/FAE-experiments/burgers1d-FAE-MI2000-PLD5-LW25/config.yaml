@@ -3,6 +3,7 @@ lasdi:
   gplasdi:
     adaptive_subsample: false
     coef_weight: 1.0e-06
+    device: cuda
     latent_space: fae1d
     ld_weight: 0.1
     lr: 0.001

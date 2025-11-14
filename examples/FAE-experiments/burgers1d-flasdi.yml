@@ -1,7 +1,7 @@
 lasdi:
   type: gplasdi
   gplasdi:
-    # device: mps
+    device: cuda
     n_samples: 20
     lr: 0.001
     max_iter: 100 #20000 #34000 #28000
