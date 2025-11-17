@@ -242,18 +242,14 @@ class LinearFunctionals1d(nn.Module):
         Output shape:           (batch, out_channels, ...)
         """
         # Compute Fourier coeffcients (scaled to approximate integration)
-        start_time = time.time()
         x = fft.rfft(x, norm="forward")
-        rfft_time = time.time() 
-        print(f"rfft time: {rfft_time - start_time}")
+
         # Truncate input modes
         x = resize_rfft(x, 2*self.modes1)
 
         # Multiply relevant Fourier modes and take the real part
         x = compl_mul(x, self.weights).real
 
-        comp_time = time.time()
-        print(f"complex multiplication time: {comp_time - rfft_time}")
         # Integrate the conjugate product in physical space by summing Fourier coefficients
         return 2*torch.sum(x, dim=-1) - x[..., 0]
 

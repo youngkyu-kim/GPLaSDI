@@ -309,9 +309,7 @@ class FNO_Autoencoder_1d(torch.nn.Module):
         x = x.permute(0, 2, 1)  # (batch, n_x, d_in + d_physical)
         x = self.fc0_e(x) # Linear pointwise lift
         x = x.permute(0, 2, 1)  # (batch, pointwise_lift_dim, n_x)
-        
-        lift_layer_time = time.time()
-        print("Lift layer time:", lift_layer_time - grid_time)
+
         # Map from input domain into the torus
         x = F.pad(x, [0, x.shape[-1]//self.padding])
         # # Fourier integral operator layers on the torus
@@ -320,11 +318,8 @@ class FNO_Autoencoder_1d(torch.nn.Module):
         #     x = self.act(x)
 
         # Extract Fourier neural functionals on the torus
-        torch.cuda.synchronize() 
         x = self.lfunc0_e(x)
-        nf_time = time.time()
-        print("Neural functional layer time:", nf_time - lift_layer_time)
-        
+
         # Retain the truncated modes (use all modes) (local information)
         # x = x.permute(0, 2, 1)
         # x = self.mlpfunc0_e(x)
@@ -337,9 +332,6 @@ class FNO_Autoencoder_1d(torch.nn.Module):
 
         # Final projection layer
         x = self.mlp0_e(x)
-
-        proj_time = time.time()
-        print("Final projection layer time:", proj_time - nf_time)
 
         if self.adjusted:
             x = x.reshape(self.n_samples, -1, x.shape[-1])

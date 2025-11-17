@@ -207,52 +207,61 @@ class BayesianGLaSDI:
                 X_train_device_temp = subsampler(X_train_device)
             else:
                 X_train_device_temp = X_train_device
+            # Going to do one sample at a time
+            loss = 0
+            total_loss_ae = 0
+            total_loss_ld = 0
+            total_loss_coef = 0 
+            all_coefs = None
+
+            for sample_idx in range(n_train):
+
+                X_sample = X_train_device_temp[sample_idx:sample_idx+1, ...]  # keep batch dimension
+
             
-            Z = autoencoder_device.encoder(X_train_device_temp)
+                Z = autoencoder_device.encoder(X_sample)
 
-            encoder_time = time.time()
-            print('Encoder Time: %3.2f s' % (encoder_time - start_time), end=' ')
+                X_pred = autoencoder_device.decoder(Z)
 
-            X_pred = autoencoder_device.decoder(Z)
+                Z = Z.cpu()
+                loss_ae = self.MSE(X_sample, X_pred)
+                coefs, loss_ld, loss_coef = ld.calibrate(Z, self.physics.dt, compute_loss=True, numpy=True)
 
-            decoder_time = time.time()
-            print('Decoder Time: %3.2f s' % (decoder_time - encoder_time), end=' ')
+                loss_sample = loss_ae + self.ld_weight * loss_ld / n_train + self.coef_weight * loss_coef / n_train
+                loss_sample = loss_sample /n_train
+                loss_sample.backward()
 
-            Z = Z.cpu()
-            loss_ae = self.MSE(X_train_device_temp, X_pred)
-            coefs, loss_ld, loss_coef = ld.calibrate(Z, self.physics.dt, compute_loss=True, numpy=True)
+                loss += loss_sample.item()*n_train
+                total_loss_ae += loss_ae.item()/n_train
+                total_loss_ld += loss_ld.item()/n_train
+                total_loss_coef += loss_coef.item()/n_train
+           
+                if (all_coefs is None):
+                    all_coefs = np.zeros((n_train, coefs.shape[1]))
+                all_coefs[sample_idx, :] = coefs
 
-
-
-            max_coef = np.abs(coefs).max()
-
-            loss = loss_ae + self.ld_weight * loss_ld / n_train + self.coef_weight * loss_coef / n_train
-            
             if self.adaptive_subsample:
                 subsampler.step(loss)
                 subsamp_str =  f'[subsamp: {subsampler.ss}]'
                 print(subsamp_str, end=' ')
-
-            self.training_loss.append(loss.item())
-            self.ae_loss.append(loss_ae.item())
-            self.ld_loss.append(loss_ld.item())
-            self.coef_loss.append(loss_coef.item())
+            
+            self.training_loss.append(loss)
+            self.ae_loss.append(total_loss_ae)
+            self.ld_loss.append(total_loss_ld)
+            self.coef_loss.append(total_loss_coef)
 
             
-            loss.backward()
-            backprop_time = time.time()
-            print('Backprop Time: %3.2f s' % (backprop_time - decoder_time), end=' ')
             self.optimizer.step()
- 
 
-            if loss.item() < self.best_loss:
+
+            if loss < self.best_loss:
                 torch.save(autoencoder_device.cpu().state_dict(), self.path_checkpoint + '/' + 'checkpoint.pt')
                 autoencoder_device = self.autoencoder.to(device)
-                self.best_coefs = coefs
-                self.best_loss = loss.item()
+                self.best_coefs = all_coefs
+                self.best_loss = loss
 
-            print("Iter: %05d/%d, Loss: %3.10f, Loss AE: %3.10f, Loss LD: %3.10f, Loss COEF: %3.10f, max|c|: %04.1f, "
-                  % (iter + 1, self.max_iter, loss.item(), loss_ae.item(), loss_ld.item(), loss_coef.item(), max_coef),
+            print("Iter: %05d/%d, Loss: %3.10f, Loss AE: %3.10f, Loss LD: %3.10f, Loss COEF: %3.10f, "
+                  % (iter + 1, self.max_iter, loss, total_loss_ae, total_loss_ld, total_loss_coef),
                   end = '')
 
             if n_train < 6:
@@ -280,7 +289,7 @@ class BayesianGLaSDI:
             state_dict = torch.load(self.path_checkpoint + '/' + 'checkpoint.pt')
             self.autoencoder.load_state_dict(state_dict)
         else:
-            self.best_coefs = coefs
+            self.best_coefs = all_coefs
             torch.save(autoencoder_device.cpu().state_dict(), self.path_checkpoint + '/' + 'checkpoint.pt')
 
         self.timer.end("finalize")
