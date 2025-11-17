@@ -71,6 +71,10 @@ echo "  layer_width: $layer_width"
 echo "  config_file: $config_file"
 echo "================================================"
 
+export PYTORCH_HIP_ALLOC_CONF=max_split_size_mb:128
+export MIOPEN_DISABLE_CACHE=1
+export MIOPEN_DEBUG_DISABLE_FIND_DB=1
+export HSA_FORCE_FINE_GRAIN_PCIE=1  # Important for MI300A
 
 # Run the command
 lasdi "$config_file"
