@@ -25,7 +25,7 @@ mkdir -p logs
 
 # Activate conda environment
 source ~/.bashrc
-conda activate python3.9
+conda activate /usr/WS1/trautner/envs/python3.9
 
 echo "Changed conda environment"
 
