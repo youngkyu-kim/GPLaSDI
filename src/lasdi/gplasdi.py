@@ -172,7 +172,10 @@ class BayesianGLaSDI:
         #     # shape is now (n_samples*d_t, d_in + 1, d_x)
         #     self.X_train = self.X_train.reshape(self.n_samples, -1, self.autoencoder.d_in + 1, self.X_train.shape[-1])
 
-        X_train_device = self.X_train.to(device)        
+        X_train_device = self.X_train.to(device)  
+
+        print(f"GPU Memory allocated: {torch.cuda.memory_allocated(0) / 1e9:.2f} GB")
+        print(f"GPU Memory cached: {torch.cuda.memory_reserved(0) / 1e9:.2f} GB")      
         from pathlib import Path
         Path(self.path_checkpoint).mkdir(parents=True, exist_ok=True)
         Path(self.path_results).mkdir(parents=True, exist_ok=True)
