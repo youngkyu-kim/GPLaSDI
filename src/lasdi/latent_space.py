@@ -320,6 +320,7 @@ class FNO_Autoencoder_1d(torch.nn.Module):
         #     x = self.act(x)
 
         # Extract Fourier neural functionals on the torus
+        torch.cuda.synchronize() 
         x = self.lfunc0_e(x)
         nf_time = time.time()
         print("Neural functional layer time:", nf_time - lift_layer_time)
