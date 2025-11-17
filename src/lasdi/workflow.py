@@ -19,6 +19,11 @@ from lasdi.latent_space import initial_condition_latent
 from lasdi.gp import fit_gps
 from lasdi.gplasdi import sample_roms, average_rom
 
+# trying to fix segfault
+torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cudnn.allow_tf32 = False
+torch.backends.cudnn.deterministic = True
+
 
 
 trainer_dict = {'gplasdi': BayesianGLaSDI}
