@@ -6,6 +6,7 @@ from torch import nn
 from .fno_shared import *
 import pdb
 import time
+import math
 
 # activation dict
 act_dict = {'ELU': torch.nn.ELU,
@@ -315,7 +316,11 @@ class FNO_Autoencoder_1d(torch.nn.Module):
         print(f"After Lifting Layer: {torch.cuda.memory_allocated()/1e9:.2f} GB")
         print(f"Input shape: {x.shape}, dtype: {x.dtype}")  
         # Map from input domain into the torus
+
+        
         x = F.pad(x, [0, x.shape[-1]//self.padding])
+        next_pow2 = 2**math.ceil(math.log2(x.shape[-1]))
+        x = F.pad(x, [0, next_pow2 - x.shape[-1]])
         # # Fourier integral operator layers on the torus
         # for speconv, w in zip(self.speconvs_e, self.ws_e):
         #     x = w(x) + speconv(x)
