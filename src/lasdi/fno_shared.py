@@ -248,14 +248,22 @@ class LinearFunctionals1d(nn.Module):
         Output shape:           (batch, out_channels, ...)
         """
         # Compute Fourier coeffcients (scaled to approximate integration)
+        print(f"Before FFT - GPU mem: {torch.cuda.memory_allocated()/1e9:.2f} GB")
+        print(f"Input shape: {x.shape}, dtype: {x.dtype}")  
+
         x = fft.rfft(x, norm="forward")
+
+        print(f"After FFT - GPU mem: {torch.cuda.memory_allocated()/1e9:.2f} GB")
+        
 
         # Truncate input modes
         x = resize_rfft(x, 2*self.modes1)
 
+        print(f"After resize_rfft - GPU mem: {torch.cuda.memory_allocated()/1e9:.2f} GB")
         # Multiply relevant Fourier modes and take the real part
         x = compl_mul(x, self.weights).real
 
+        print(f"After compl_mul - GPU mem: {torch.cuda.memory_allocated()/1e9:.2f} GB")
         # Integrate the conjugate product in physical space by summing Fourier coefficients
         return 2*torch.sum(x, dim=-1) - x[..., 0]
 
