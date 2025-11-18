@@ -200,12 +200,18 @@ class SpectralConv1d(nn.Module):
         out_ft[1] = self.out_channels
         xsize = out_ft[-1]
         
+        print(f"Before FFT - GPU mem: {torch.cuda.memory_allocated()/1e9:.2f} GB")
+        print(f"Input shape: {x.shape}, dtype: {x.dtype}")  
         # Compute Fourier coeffcients (un-scaled)
         x = fft.rfft(x)
 
         # Multiply relevant Fourier modes
+        print(f"After FFT - GPU mem: {torch.cuda.memory_allocated()/1e9:.2f} GB")
+
         out_ft = torch.zeros(*out_ft[:-1], xsize//2 + 1, dtype=torch.cfloat, device=x.device)
         out_ft[..., :self.modes1] = compl_mul(x[..., :self.modes1], self.weights1)
+
+        print(f"After compl_mul - GPU mem: {torch.cuda.memory_allocated()/1e9:.2f} GB")
 
         # Return to physical space
         if s is None or s == xsize:
