@@ -16,6 +16,6 @@ cd /usr/workspace/trautner/GPLaSDI/examples/FAE-experiments
 export PYTHONUNBUFFERED=1
 
 # Run the command
-python fft_debug.py
+python basic_fft_debug.py
 
 echo "Job completed successfully"
