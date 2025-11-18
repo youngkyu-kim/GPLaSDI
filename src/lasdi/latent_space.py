@@ -304,18 +304,25 @@ class FNO_Autoencoder_1d(torch.nn.Module):
         if self.get_grid:
             x = torch.cat((x, get_grid1d(x.shape, x.device)), dim=-2)    # grid ``features''
        
+        print(f"After Dim Cat: {torch.cuda.memory_allocated()/1e9:.2f} GB")
+        print(f"Input shape: {x.shape}, dtype: {x.dtype}")  
         grid_time = time.time()
 
         x = x.permute(0, 2, 1)  # (batch, n_x, d_in + d_physical)
         x = self.fc0_e(x) # Linear pointwise lift
         x = x.permute(0, 2, 1)  # (batch, pointwise_lift_dim, n_x)
 
+        print(f"After Lifting Layer: {torch.cuda.memory_allocated()/1e9:.2f} GB")
+        print(f"Input shape: {x.shape}, dtype: {x.dtype}")  
         # Map from input domain into the torus
         x = F.pad(x, [0, x.shape[-1]//self.padding])
         # # Fourier integral operator layers on the torus
         # for speconv, w in zip(self.speconvs_e, self.ws_e):
         #     x = w(x) + speconv(x)
         #     x = self.act(x)
+
+        print(f"After FIO Layers: {torch.cuda.memory_allocated()/1e9:.2f} GB")
+        print(f"Input shape: {x.shape}, dtype: {x.dtype}")
 
         # Extract Fourier neural functionals on the torus
         x = self.lfunc0_e(x)
