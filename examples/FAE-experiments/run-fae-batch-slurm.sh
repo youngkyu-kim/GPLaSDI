@@ -1,13 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=fae-batch-gpu
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --gpus-per-task=1
-#SBATCH --time=00:05:00
+#SBATCH --mem=32G
+#SBATCH --n=1 
+#SBATCH --gres gpu:1
+#SBATCH --t=00:05:00
 #SBATCH --output=logs/lasdi_%a.out
 #SBATCH --error=logs/lasdi_%a.err
 #SBATCH --array=0
+#SBATCh --partition=gpu
 
 echo "Script starting..."
 
