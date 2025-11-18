@@ -249,7 +249,12 @@ class LinearFunctionals1d(nn.Module):
         """
         # Compute Fourier coeffcients (scaled to approximate integration)
         print(f"Before FFT - GPU mem: {torch.cuda.memory_allocated()/1e9:.2f} GB")
-        print(f"Input shape: {x.shape}, dtype: {x.dtype}")  
+        print(f"Input shape: {x.shape}, dtype: {x.dtype}")
+        print(x.device)
+
+        x_cpu = x.cpu()
+        x_cpu = fft.rfft(x_cpu, norm='forward')
+        print(f"FFT on CPU successful!")
 
         x = fft.rfft(x, norm="forward")
 
